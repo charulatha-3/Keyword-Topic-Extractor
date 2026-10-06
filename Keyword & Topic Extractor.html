@@ -1,0 +1,1032 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Keyword & Topic Extractor</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Inter', sans-serif;
+    background: #f3f6f9;
+    color: #17202a;
+}
+
+header {
+    background: #101820;
+    color: white;
+    padding: 22px 7%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.logo {
+    font-size: 22px;
+    font-weight: 800;
+}
+
+.logo span {
+    color: #20c997;
+}
+
+.badge {
+    background: #1d2a35;
+    padding: 8px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    color: #9ff3d6;
+}
+
+.container {
+    width: 86%;
+    max-width: 1200px;
+    margin: 35px auto;
+}
+
+.hero {
+    margin-bottom: 25px;
+}
+
+.hero h1 {
+    font-size: 34px;
+    margin-bottom: 8px;
+}
+
+.hero p {
+    color: #71808d;
+}
+
+.main-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 22px;
+}
+
+.card {
+    background: white;
+    border-radius: 18px;
+    padding: 24px;
+    box-shadow: 0 8px 25px rgba(20, 30, 40, 0.06);
+}
+
+.card-title {
+    font-size: 17px;
+    font-weight: 700;
+    margin-bottom: 17px;
+}
+
+textarea {
+    width: 100%;
+    height: 260px;
+    resize: none;
+    border: 1px solid #dce4e9;
+    border-radius: 13px;
+    padding: 16px;
+    outline: none;
+    font-family: inherit;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #303b45;
+}
+
+textarea:focus {
+    border-color: #20b486;
+}
+
+.counter {
+    margin-top: 8px;
+    text-align: right;
+    color: #8c98a3;
+    font-size: 12px;
+}
+
+.buttons {
+    display: flex;
+    gap: 10px;
+    margin-top: 17px;
+}
+
+button {
+    border: none;
+    border-radius: 10px;
+    padding: 12px 20px;
+    cursor: pointer;
+    font-family: inherit;
+    font-weight: 600;
+}
+
+.extract {
+    background: #20b486;
+    color: white;
+    flex: 1;
+}
+
+.extract:hover {
+    background: #159b72;
+}
+
+.clear {
+    background: #edf1f3;
+    color: #4c5861;
+}
+
+.stats {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 13px;
+}
+
+.stat {
+    background: #f5f8f9;
+    border: 1px solid #e9eef1;
+    padding: 18px;
+    border-radius: 13px;
+}
+
+.stat-icon {
+    font-size: 21px;
+    margin-bottom: 6px;
+}
+
+.stat-label {
+    font-size: 12px;
+    color: #7b8791;
+    margin-bottom: 7px;
+}
+
+.stat-value {
+    font-size: 24px;
+    font-weight: 800;
+}
+
+.full-card {
+    margin-top: 22px;
+}
+
+.topics {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.topic {
+    padding: 10px 15px;
+    border-radius: 25px;
+    background: #e5faf3;
+    color: #138b67;
+    font-size: 13px;
+    font-weight: 700;
+}
+
+.keyword-list {
+    display: grid;
+    gap: 12px;
+}
+
+.keyword-item {
+    display: grid;
+    grid-template-columns: 40px 1fr 60px;
+    align-items: center;
+    gap: 12px;
+}
+
+.rank {
+    width: 32px;
+    height: 32px;
+    background: #101820;
+    color: white;
+    border-radius: 9px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.keyword-name {
+    font-size: 13px;
+    font-weight: 600;
+}
+
+.keyword-bar {
+    height: 7px;
+    background: #edf1f3;
+    border-radius: 20px;
+    overflow: hidden;
+    margin-top: 5px;
+}
+
+.keyword-fill {
+    height: 100%;
+    width: 0%;
+    background: #20b486;
+    border-radius: 20px;
+    transition: width 0.5s;
+}
+
+.keyword-count {
+    text-align: right;
+    color: #74818b;
+    font-size: 12px;
+}
+
+.cloud {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    min-height: 170px;
+    padding: 15px;
+}
+
+.cloud-word {
+    color: #147b60;
+    font-weight: 700;
+    cursor: default;
+}
+
+.empty {
+    color: #9aa4ac;
+    text-align: center;
+    padding: 20px;
+    font-size: 13px;
+}
+
+.history-item {
+    border: 1px solid #e7edef;
+    padding: 13px;
+    border-radius: 11px;
+    margin-top: 10px;
+    display: flex;
+    justify-content: space-between;
+    gap: 15px;
+    font-size: 12px;
+}
+
+.history-text {
+    color: #606d76;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.history-info {
+    color: #7e8992;
+    white-space: nowrap;
+}
+
+footer {
+    text-align: center;
+    color: #89949c;
+    padding: 30px;
+    font-size: 12px;
+}
+
+@media(max-width: 800px) {
+
+    .main-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .container {
+        width: 92%;
+    }
+
+    .hero h1 {
+        font-size: 28px;
+    }
+
+    header {
+        padding: 20px 5%;
+    }
+
+    .keyword-item {
+        grid-template-columns: 35px 1fr 45px;
+    }
+}
+</style>
+</head>
+
+<body>
+
+<header>
+
+    <div class="logo">
+        Key<span>Lens</span> 🔎
+    </div>
+
+    <div class="badge">
+        Application 4 • NLP
+    </div>
+
+</header>
+
+<div class="container">
+
+    <div class="hero">
+
+        <h1>Keyword & Topic Extractor</h1>
+
+        <p>
+            Discover the important words and main topics hidden inside your text.
+        </p>
+
+    </div>
+
+    <div class="main-grid">
+
+        <div class="card">
+
+            <div class="card-title">
+                Enter Your Text
+            </div>
+
+            <textarea
+                id="textInput"
+                maxlength="10000"
+                placeholder="Paste an article, paragraph, report, or any text here..."></textarea>
+
+            <div class="counter">
+                <span id="charCount">0</span>/10000 characters
+            </div>
+
+            <div class="buttons">
+
+                <button class="extract" onclick="extractKeywords()">
+                    Extract Keywords
+                </button>
+
+                <button class="clear" onclick="clearText()">
+                    Clear
+                </button>
+
+            </div>
+
+        </div>
+
+        <div class="card">
+
+            <div class="card-title">
+                Analysis Overview
+            </div>
+
+            <div class="stats">
+
+                <div class="stat">
+
+                    <div class="stat-icon">📝</div>
+
+                    <div class="stat-label">
+                        Total Words
+                    </div>
+
+                    <div class="stat-value" id="totalWords">
+                        0
+                    </div>
+
+                </div>
+
+                <div class="stat">
+
+                    <div class="stat-icon">🔑</div>
+
+                    <div class="stat-label">
+                        Unique Words
+                    </div>
+
+                    <div class="stat-value" id="uniqueWords">
+                        0
+                    </div>
+
+                </div>
+
+                <div class="stat">
+
+                    <div class="stat-icon">⭐</div>
+
+                    <div class="stat-label">
+                        Keywords
+                    </div>
+
+                    <div class="stat-value" id="keywordCount">
+                        0
+                    </div>
+
+                </div>
+
+                <div class="stat">
+
+                    <div class="stat-icon">🏷️</div>
+
+                    <div class="stat-label">
+                        Topics
+                    </div>
+
+                    <div class="stat-value" id="topicCount">
+                        0
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card full-card">
+
+        <div class="card-title">
+            Detected Topics
+        </div>
+
+        <div class="topics" id="topics">
+
+            <div class="empty">
+                Enter text to detect topics.
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card full-card">
+
+        <div class="card-title">
+            Top Keywords
+        </div>
+
+        <div class="keyword-list" id="keywordList">
+
+            <div class="empty">
+                No keywords extracted yet.
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card full-card">
+
+        <div class="card-title">
+            Keyword Cloud
+        </div>
+
+        <div class="cloud" id="cloud">
+
+            <div class="empty">
+                Keyword cloud will appear here.
+            </div>
+
+        </div>
+
+    </div>
+
+    <div class="card full-card">
+
+        <div class="card-title">
+            Recent Analysis
+        </div>
+
+        <div id="history">
+
+            <div class="empty">
+                No analysis performed yet.
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+<footer>
+    Text & Speech Analysis Series • Application 4
+</footer>
+
+<script>
+
+const textInput =
+    document.getElementById("textInput");
+
+textInput.addEventListener("input", function() {
+
+    document.getElementById("charCount").textContent =
+        this.value.length;
+
+});
+
+const stopWords = new Set([
+
+    "the", "is", "a", "an", "and",
+    "or", "of", "to", "in", "on",
+    "for", "with", "this", "that",
+    "it", "as", "are", "was",
+    "were", "be", "by", "from",
+    "at", "has", "have", "had",
+    "i", "you", "he", "she",
+    "we", "they", "my", "your",
+    "our", "their", "but", "not",
+    "can", "will", "would",
+    "could", "should", "about",
+    "into", "than", "then",
+    "there", "here", "also",
+    "very", "more", "most",
+    "some", "such", "these",
+    "those", "its", "it's",
+    "were", "been", "being",
+    "do", "does", "did",
+    "while", "during", "through",
+    "using", "used"
+]);
+
+const topicDictionary = {
+
+    "Artificial Intelligence": [
+        "artificial",
+        "intelligence",
+        "ai",
+        "machine",
+        "learning",
+        "deep",
+        "neural",
+        "model",
+        "algorithm",
+        "automation"
+    ],
+
+    "Technology": [
+        "technology",
+        "software",
+        "hardware",
+        "computer",
+        "digital",
+        "internet",
+        "application",
+        "system",
+        "platform",
+        "device"
+    ],
+
+    "Education": [
+        "education",
+        "student",
+        "students",
+        "teacher",
+        "teachers",
+        "college",
+        "school",
+        "learning",
+        "course",
+        "exam",
+        "university",
+        "classroom"
+    ],
+
+    "Business": [
+        "business",
+        "company",
+        "market",
+        "customer",
+        "sales",
+        "product",
+        "service",
+        "profit",
+        "management",
+        "startup"
+    ],
+
+    "Healthcare": [
+        "health",
+        "healthcare",
+        "hospital",
+        "doctor",
+        "patient",
+        "medical",
+        "medicine",
+        "disease",
+        "treatment",
+        "clinic"
+    ],
+
+    "Environment": [
+        "environment",
+        "climate",
+        "pollution",
+        "waste",
+        "recycling",
+        "water",
+        "energy",
+        "green",
+        "nature",
+        "sustainable",
+        "sustainability"
+    ],
+
+    "Programming": [
+        "programming",
+        "coding",
+        "code",
+        "developer",
+        "javascript",
+        "python",
+        "java",
+        "html",
+        "css",
+        "software",
+        "database"
+    ],
+
+    "Cloud Computing": [
+        "cloud",
+        "aws",
+        "azure",
+        "server",
+        "storage",
+        "deployment",
+        "computing",
+        "virtual",
+        "database",
+        "lambda"
+    ],
+
+    "Cybersecurity": [
+        "security",
+        "cybersecurity",
+        "password",
+        "attack",
+        "hacker",
+        "privacy",
+        "encryption",
+        "malware",
+        "threat",
+        "authentication"
+    ],
+
+    "Space": [
+        "space",
+        "astronaut",
+        "nasa",
+        "planet",
+        "mars",
+        "earth",
+        "rocket",
+        "satellite",
+        "orbit",
+        "mission"
+    ]
+};
+
+function extractKeywords() {
+
+    const text =
+        textInput.value.trim();
+
+    if (!text) {
+
+        alert("Please enter some text first.");
+
+        return;
+    }
+
+    const words =
+        text
+            .toLowerCase()
+            .match(/[a-zA-Z0-9]+/g) || [];
+
+    const meaningfulWords =
+        words.filter(word =>
+            !stopWords.has(word) &&
+            word.length > 2
+        );
+
+    const frequency = {};
+
+    meaningfulWords.forEach(word => {
+
+        frequency[word] =
+            (frequency[word] || 0) + 1;
+
+    });
+
+    const sortedKeywords =
+        Object.entries(frequency)
+            .sort((a, b) => b[1] - a[1]);
+
+    const topKeywords =
+        sortedKeywords.slice(0, 10);
+
+    const topics =
+        detectTopics(words);
+
+    document.getElementById("totalWords").textContent =
+        words.length;
+
+    document.getElementById("uniqueWords").textContent =
+        new Set(words).size;
+
+    document.getElementById("keywordCount").textContent =
+        topKeywords.length;
+
+    document.getElementById("topicCount").textContent =
+        topics.length;
+
+    displayTopics(topics);
+
+    displayKeywords(topKeywords);
+
+    displayCloud(topKeywords);
+
+    saveHistory(
+        text,
+        topKeywords.length,
+        topics.length
+    );
+}
+
+function detectTopics(words) {
+
+    const detected = [];
+
+    Object.entries(topicDictionary)
+        .forEach(([topic, keywords]) => {
+
+            let score = 0;
+
+            keywords.forEach(keyword => {
+
+                if (words.includes(keyword)) {
+                    score++;
+                }
+
+            });
+
+            if (score >= 2) {
+
+                detected.push({
+                    topic: topic,
+                    score: score
+                });
+
+            }
+
+        });
+
+    detected.sort((a, b) =>
+        b.score - a.score
+    );
+
+    return detected
+        .slice(0, 6)
+        .map(item => item.topic);
+}
+
+function displayTopics(topics) {
+
+    const container =
+        document.getElementById("topics");
+
+    if (topics.length === 0) {
+
+        container.innerHTML =
+            '<div class="empty">No predefined topic detected.</div>';
+
+        return;
+    }
+
+    container.innerHTML =
+        topics.map(topic => {
+
+            return `
+                <div class="topic">
+                    🏷️ ${topic}
+                </div>
+            `;
+
+        }).join("");
+}
+
+function displayKeywords(keywords) {
+
+    const container =
+        document.getElementById("keywordList");
+
+    if (keywords.length === 0) {
+
+        container.innerHTML =
+            '<div class="empty">No keywords found.</div>';
+
+        return;
+    }
+
+    const maxCount =
+        keywords[0][1];
+
+    container.innerHTML =
+        keywords.map(([word, count], index) => {
+
+            const percentage =
+                (count / maxCount) * 100;
+
+            return `
+                <div class="keyword-item">
+
+                    <div class="rank">
+                        ${index + 1}
+                    </div>
+
+                    <div>
+
+                        <div class="keyword-name">
+                            ${escapeHTML(word)}
+                        </div>
+
+                        <div class="keyword-bar">
+
+                            <div
+                                class="keyword-fill"
+                                style="width:${percentage}%">
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                    <div class="keyword-count">
+                        ${count}×
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+}
+
+function displayCloud(keywords) {
+
+    const container =
+        document.getElementById("cloud");
+
+    if (keywords.length === 0) {
+
+        container.innerHTML =
+            '<div class="empty">Keyword cloud will appear here.</div>';
+
+        return;
+    }
+
+    const max =
+        keywords[0][1];
+
+    container.innerHTML =
+        keywords.map(([word, count]) => {
+
+            const size =
+                14 + ((count / max) * 22);
+
+            return `
+                <span
+                    class="cloud-word"
+                    style="font-size:${size}px">
+
+                    ${escapeHTML(word)}
+
+                </span>
+            `;
+
+        }).join("");
+}
+
+function saveHistory(
+    text,
+    keywords,
+    topics
+) {
+
+    let history =
+        JSON.parse(
+            localStorage.getItem(
+                "keywordTopicHistory"
+            ) || "[]"
+        );
+
+    history.unshift({
+
+        text: text,
+        keywords: keywords,
+        topics: topics,
+        time: new Date().toLocaleString()
+
+    });
+
+    history =
+        history.slice(0, 5);
+
+    localStorage.setItem(
+        "keywordTopicHistory",
+        JSON.stringify(history)
+    );
+
+    displayHistory();
+}
+
+function displayHistory() {
+
+    const container =
+        document.getElementById("history");
+
+    const history =
+        JSON.parse(
+            localStorage.getItem(
+                "keywordTopicHistory"
+            ) || "[]"
+        );
+
+    if (history.length === 0) {
+
+        container.innerHTML =
+            '<div class="empty">No analysis performed yet.</div>';
+
+        return;
+    }
+
+    container.innerHTML =
+        history.map(item => {
+
+            return `
+                <div class="history-item">
+
+                    <div class="history-text">
+                        ${escapeHTML(item.text)}
+                    </div>
+
+                    <div class="history-info">
+                        ${item.keywords} keywords
+                        •
+                        ${item.topics} topics
+                        •
+                        ${item.time}
+                    </div>
+
+                </div>
+            `;
+
+        }).join("");
+}
+
+function clearText() {
+
+    textInput.value = "";
+
+    document.getElementById("charCount").textContent =
+        "0";
+
+    document.getElementById("totalWords").textContent =
+        "0";
+
+    document.getElementById("uniqueWords").textContent =
+        "0";
+
+    document.getElementById("keywordCount").textContent =
+        "0";
+
+    document.getElementById("topicCount").textContent =
+        "0";
+
+    document.getElementById("topics").innerHTML =
+        '<div class="empty">Enter text to detect topics.</div>';
+
+    document.getElementById("keywordList").innerHTML =
+        '<div class="empty">No keywords extracted yet.</div>';
+
+    document.getElementById("cloud").innerHTML =
+        '<div class="empty">Keyword cloud will appear here.</div>';
+}
+
+function escapeHTML(text) {
+
+    return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+
+}
+
+displayHistory();
+
+</script>
+
+</body>
+</html>
